@@ -1,4 +1,4 @@
-# HarmoniQuant
+# Volatone
 
 > **Status:** **Active Work-in-Progress (Summer 2026)** 
 > This repository is an ongoing personal project focused on merging high-performance systems engineering with algorithmic music theory. Under active construction (WIP 🙏)
