@@ -13,3 +13,4 @@ I plan to make a standalone native executable first, with a possibility of a sin
 ### Technical Stack
 * #### TBD
 * **Tone.js:** Asynchronous event scheduling, musical grid quantisation, and audio synthesis.
+
