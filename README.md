@@ -14,11 +14,3 @@ I plan to make a standalone native executable first, with a possibility of a sin
 * #### TBD
 * **Tone.js:** Asynchronous event scheduling, musical grid quantisation, and audio synthesis.
 
-
-@@FILE backend/src/volatone/api/init.py@@
-
-@@FILE backend/src/volatone/api/routes.py@@
-
-@@FILE backend/src/volatone/api/ws.py@@
-
-@@FILE backend/src/volatone/main.py@@

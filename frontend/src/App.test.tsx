@@ -1,0 +1,15 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import App from "./App";
+
+describe("App", () => {
+  it("renders the product name and tagline", () => {
+    render(<App />);
+
+    expect(
+      screen.getByRole("heading", { name: "Volatone" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Sonifying live market data")).toBeInTheDocument();
+  });
+});
