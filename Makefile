@@ -26,7 +26,7 @@ fmt: ## Auto-format everything
 	cd frontend && npm run format
 
 up: ## Start database + backend in Docker
-	docker compuse up --build
+	docker compose up --build
 
 down: ## Stop the Docker stack
 	docker compose down
