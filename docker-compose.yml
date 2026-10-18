@@ -1,0 +1,34 @@
+# Local development stack: database + backend
+# The frontend crucially is NOT here: In dev it runs via Vite (hot reload)
+# In prod, it is a static build served from S3 + CloudFront.
+services:
+  db:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-volatone}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-volatone}
+      POSTGRES_DB: ${POSTGRES_DB:-volatone}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-volatone} -d ${POSTGRES_DB:-volatone}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      VOLATONE_ENVIRONMENT: development
+      VOLATONE_DATABASE_URL: postgresql://${POSTGRES_USER:-volatone}:${POSTGRES_PASSWORD:-volatone}@db:5432/${POSTGRES_DB:-volatone}
+      VOLATONE_CORS_ORIGINS: '["http://localhost:5173"]'
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
