@@ -9,4 +9,4 @@ Audio must be synthesised in the browser (Web Audio). But the musical logic is t
 The backend engine turns ticks into `NoteEvent` messages (pitch, velocity, duration). The browser (Tone.js) only renders them as sound and visuals.
 
 ## Consequences
-Every listener hears the same thing, and a session can be logged and replayed. Latency between feed and sound includes one network hop. THe 'NoteEvent' schema becomes a contract that must be kept in sync on both sides.
+Every listener hears the same thing, and a session can be logged and replayed. Latency between feed and sound includes one network hop. The 'NoteEvent' schema becomes a contract that must be kept in sync on both sides.
