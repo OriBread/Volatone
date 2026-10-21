@@ -5,7 +5,7 @@ This is (intended) to be a solo project, so this is here mostly for my own refer
 ## Workflow
 
 1. `main` is always working. Never commit to it directly.
-2. Branch from `main`: `feat/<short-name>`, `fix/<short-name>`, `docs/<short-name>`, `chore/<short-name>`.
+2. Branch from `main`: `feat/<short-name>`, `fix/<short-name>`, `refactor/<short-name>`, `docs/<short-name>`, `test/<short-name>`.
 3. Commit small and often, using [Conventional Commits] (https://www.conventionalcommits.org/):
     `feat: add tick ingestion`, `fix: handle websocket reconnect` `docs: add ADR for storage.
 4. Open a pull request. CI must pass (lint, types, tests, build) before merging.
