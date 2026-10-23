@@ -22,7 +22,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(rest_router, prefix="/api")
-    app.include_router(ws_router)
+    app.include_router(ws_router, prefix="/ws")
     return app
 
 

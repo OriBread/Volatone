@@ -1,5 +1,7 @@
 """REST endpoints for request/response data (config, stream lists, history)."""
 
+from typing import Any
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,8 +30,11 @@ def health() -> dict[str, str]:
 # --- History ---
 
 
-@router.get("/api/history/recent", tags=["history"])
-async def get_recent_ticks(limit: int = 50, db: AsyncSession = Depends(get_db)):  # noqa: B008
+@router.get("/history/recent", tags=["history"])
+async def get_recent_ticks(
+    limit: int = 50,
+    db: AsyncSession = Depends(get_db),  # noqa: B008
+) -> list[dict[str, Any]]:
     """Fetch recent ticks and their sonified notes for UI initialisation"""
     query = (
         select(Tick, Note)
@@ -44,7 +49,7 @@ async def get_recent_ticks(limit: int = 50, db: AsyncSession = Depends(get_db)):
         {
             "timestamp": tick.timestamp.isoformat(),
             "price": tick.price,
-            "pitch": note.pitck,
+            "pitch": note.pitch,
             "velocity": note.velocity,
         }
         for tick, note in rows
