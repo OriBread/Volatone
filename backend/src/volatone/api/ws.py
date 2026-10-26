@@ -59,10 +59,10 @@ async def market_data_generator() -> None:
             timestamp_ms=int(asyncio.get_event_loop().time() * 1000),
         )
 
+        payload = {"type": "tick_and_note", "price": current_price, "note": event.model_dump()}
+
         # 4. Broadcast to all connected frontends
-        await manager.broadcast(
-            {"type": "tick_and_note", "price": current_price, "note": event.model_dump()}
-        )
+        await manager.broadcast(payload)
 
 
 @router.websocket("/stream")
