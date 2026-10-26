@@ -2,6 +2,7 @@
 
 import asyncio
 import random
+import time
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -56,7 +57,7 @@ async def market_data_generator() -> None:
             pitch=note_data["pitch"],
             velocity=note_data["velocity"],
             duration_ms=note_data["duration_ms"],
-            timestamp_ms=int(asyncio.get_event_loop().time() * 1000),
+            timestamp_ms=time.time_ns() // 1_000_000,
         )
 
         payload = {"type": "tick_and_note", "price": current_price, "note": event.model_dump()}
