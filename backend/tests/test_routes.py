@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from volatone.db.models import Note, Tick
+from volatone.db.models import Tick
 from volatone.db.session import get_db
 from volatone.main import create_app
 
@@ -19,23 +19,17 @@ def test_health_returns_ok(client: TestClient) -> None:
 
 
 # Verify the history REST endpoint correctly queries and returns database ticks and notes.
-def test_recent_history_returns_ticks_and_notes() -> None:
+def test_recent_history_returns_ticks_with_derived_notes() -> None:
     app = create_app()
 
     first_timestamp = datetime(2026, 1, 2, 12, 0, tzinfo=UTC)
     second_timestamp = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
 
     first_tick = Tick(price=65000.0, timestamp=first_timestamp)
-    first_note = Note(pitch="C3", velocity=80, duration_ms=250)
-
     second_tick = Tick(price=64000.0, timestamp=second_timestamp)
-    second_note = Note(pitch="G3", velocity=60, duration_ms=400)
 
     result = MagicMock()
-    result.all.return_value = [
-        (first_tick, first_note),
-        (second_tick, second_note),
-    ]
+    result.scalars.return_value.all.return_value = [first_tick, second_tick]  # newest first
 
     # Setup mock database session to replace actual
     db = AsyncMock(spec=AsyncSession)
@@ -59,14 +53,8 @@ def test_recent_history_returns_ticks_and_notes() -> None:
         {
             "timestamp": first_timestamp.isoformat(),
             "price": 65000.0,
-            "pitch": "C3",
-            "velocity": 80,
-        },
-        {
-            "timestamp": second_timestamp.isoformat(),
-            "price": 64000.0,
-            "pitch": "G3",
-            "velocity": 60,
+            "pitch": "Bb3",
+            "velocity": 127,
         },
     ]
 
