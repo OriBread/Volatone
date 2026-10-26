@@ -4,5 +4,5 @@ export default function App() {
       <h1>Volatone</h1>
       <p>Sonifying live market data</p>
     </main>
-  );
+  )
 }

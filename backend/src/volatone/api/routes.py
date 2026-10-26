@@ -9,8 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from volatone import __version__
 from volatone.config import get_settings
 
-from ..db.models import Note, Tick
+from ..db.models import Tick
 from ..db.session import get_db
+from ..engine.core import calculate_price_change, generate_note_from_change
 
 router = APIRouter()
 
@@ -35,22 +36,21 @@ async def get_recent_ticks(
     limit: int = 50,
     db: AsyncSession = Depends(get_db),  # noqa: B008 NB: DI via parametetrised db
 ) -> list[dict[str, Any]]:
-    """Fetch recent ticks and their sonified notes for UI initialisation"""
-    query = (
-        select(Tick, Note)
-        .join(Note, Tick.id == Note.tick_id)
-        .order_by(desc(Tick.timestamp))
-        .limit(limit)
-    )
-    result = await db.execute(query)
-    rows = result.all()
+    """Recent ticks with the note the engine derives from each price move."""
+    query = select(Tick).order_by(desc(Tick.timestamp)).limit(limit + 1)
+    ticks = list((await db.execute(query)).scalars().all())  # newest first
+    rows = []
 
-    return [
-        {
-            "timestamp": tick.timestamp.isoformat(),
-            "price": tick.price,
-            "pitch": note.pitch,
-            "velocity": note.velocity,
-        }
-        for tick, note in rows
-    ]
+    for tick, previous in zip(ticks, ticks[1:], strict=False):
+        note = generate_note_from_change(
+            calculate_price_change(tick.price, previous.price), tick.price
+        )
+        rows.append(
+            {
+                "timestamp": tick.timestamp.isoformat(),
+                "price": tick.price,
+                "pitch": note["pitch"],
+                "velocity": note["velocity"],
+            }
+        )
+    return rows

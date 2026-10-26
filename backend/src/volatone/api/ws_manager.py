@@ -1,3 +1,5 @@
+import asyncio
+import json
 from typing import Any
 
 from fastapi import WebSocket
@@ -16,19 +18,20 @@ class ConnectionManager:
             self.active_connections.remove(websocket)
 
     async def broadcast(self, message: dict[Any, Any]) -> None:
-        import json
-
         payload = json.dumps(message)
-        # Send to all, but handle disconnects gracefully
-        dead_connections = []
-        for connection in self.active_connections:
-            try:
-                await connection.send_text(payload)
-            except Exception:
-                dead_connections.append(connection)
+        connections = list(self.active_connections)
 
-        for dead in dead_connections:
-            self.disconnect(dead)
+        async def send(conn: WebSocket) -> bool:
+            try:
+                await asyncio.wait_for(conn.send_text(payload), timeout=1.0)
+                return True
+            except Exception:
+                return False
+
+        results = await asyncio.gather(*(send(c) for c in connections))
+        for conn, ok in zip(connections, results, strict=True):
+            if not ok:
+                self.disconnect(conn)
 
 
 manager = ConnectionManager()
