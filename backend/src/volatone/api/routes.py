@@ -33,7 +33,7 @@ def health() -> dict[str, str]:
 @router.get("/history/recent", tags=["history"])
 async def get_recent_ticks(
     limit: int = 50,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),  # noqa: B008 NB: DI via parametetrised db
 ) -> list[dict[str, Any]]:
     """Fetch recent ticks and their sonified notes for UI initialisation"""
     query = (
