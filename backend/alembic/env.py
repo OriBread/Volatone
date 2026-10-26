@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 from volatone.config import get_settings
+from volatone.db import models  # noqa: F401
 
 # Import models and Base so Alembic can see them
 from volatone.db.base import Base
