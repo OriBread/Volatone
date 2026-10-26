@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
 
@@ -10,6 +10,7 @@ from volatone.db.session import get_db
 from volatone.main import create_app
 
 
+# Smoke test the HTTP API health liveness endpoint.
 def test_health_returns_ok(client: TestClient) -> None:
     response = client.get("/api/health")
 
@@ -17,6 +18,7 @@ def test_health_returns_ok(client: TestClient) -> None:
     assert response.json()["status"] == "ok"
 
 
+# Verify the history REST endpoint correctly queries and returns database ticks and notes.
 def test_recent_history_returns_ticks_and_notes() -> None:
     app = create_app()
 
@@ -35,14 +37,17 @@ def test_recent_history_returns_ticks_and_notes() -> None:
         (second_tick, second_note),
     ]
 
+    # Setup mock database session to replace actual
     db = AsyncMock(spec=AsyncSession)
     db.execute.return_value = result
 
-    async def override_get_db() -> AsyncIterator[AsyncSession]:
+    async def override_get_db() -> AsyncGenerator[AsyncSession]:
         yield db
 
     app.dependency_overrides[get_db] = override_get_db
 
+    # Ensure mocked database session always clears
+    # (prevent db sessions don't leak to other tests)
     try:
         with TestClient(app) as client:
             response = client.get("/api/history/recent")
