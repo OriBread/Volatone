@@ -7,3 +7,11 @@ body {
   margin: 0;
   padding: 2rem;
 }
+
+.visualisation {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 2px dashed currentColor;
+  border-radius: 0.5rem;
+  opacity: 0.8;
+}
