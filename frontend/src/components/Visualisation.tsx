@@ -8,7 +8,7 @@ import type { TickAndNote } from '../types/events'
  * props are the contract between the data layer and the visuals
  *
  *  status  connection state, for a "live / reconnecting " indicator
- *  latest  the newet message, or null before the first one arrives
+ *  latest  the newest message, or null before the first one arrives
  *  events  recent messages, oldest first, for the piano roll
  *
  *  No sockets or audio is played here. Draw from props only.

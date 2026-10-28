@@ -10,6 +10,7 @@ export default function App() {
   const [audio] = useState(createAudioEngine)
   const [audioOn, setAudioOn] = useState(false)
 
+  // Subscribe component to hook's state. Re-render on socket.onmessage and execute callback
   const { status, latest, events } = useVolatoneStream(streamUrl(), (event) =>
     audio.play(event.note),
   )

@@ -30,7 +30,9 @@ export function useVolatoneStream(
     events: [],
   })
 
-  // Always call the newest callback without re-opening the socket when it changes.
+  /* Always call the newest callback without re-opening the socket when it changes.
+  // "The WS onmessage handler should always call the latest version of onEvent. The WS useEffect only reruns on url change, so if onEvent changes, the WS closure would be trapped on the initial onEvent. We use a ref + effect to always call the latest version of onEvent without re-opening the socket (safeguard against future potential network stutter scenario)"
+  */
   const onEventRef = useRef(onEvent)
   useEffect(() => {
     onEventRef.current = onEvent
@@ -45,16 +47,20 @@ export function useVolatoneStream(
     const connect = () => {
       socket = new WebSocket(url)
 
+      //// Assign callback functions to WebSocket listeners
+
+      // Server finishes handshake
       socket.onopen = () => {
         attempt = 0 // a successful connection resets the backoff
         setState((s) => ({ ...s, status: 'open' }))
       }
 
+      // Server sends a data frame
       socket.onmessage = (message) => {
         if (typeof message.data !== 'string') return
         const event = parseTickAndNote(message.data)
         if (event === null) return // not ours: ignore, don't crash
-        onEventRef.current?.(event)
+        onEventRef.current?.(event) // run the latest callback
         setState((s) => ({
           ...s,
           latest: event,
@@ -62,6 +68,7 @@ export function useVolatoneStream(
         }))
       }
 
+      // Connection drops/closes
       socket.onclose = () => {
         if (disposed) return
         setState((s) => ({ ...s, status: 'reconnecting' }))
@@ -75,10 +82,12 @@ export function useVolatoneStream(
 
     return () => {
       disposed = true
-      clearTimeout(retryTimer)
-      socket?.close()
+      clearTimeout(retryTimer) // cancel any pending reconnect attempt
+      socket?.close() // triggers onclose, but disposed prevents a reconnect
     }
   }, [url])
 
   return state
 }
+
+// TODO: Wipe out event history (setState) when switching URLs in the future so that it doesn't show old events from previous stream. Note for if/when different streams are supported.
