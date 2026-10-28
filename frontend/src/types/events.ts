@@ -1,7 +1,13 @@
-// Mirrors backend/src/volatone/schemas/events.py
+// Mirrors backend/src/volatone/schemas/events.py (NoteEvent)
 export interface NoteEvent {
-  pitch: string // pitch notation, e.g. "C4"
-  velocity: number // 0 to 127
+  pitch: string // scientific pitch notation, e.g. "Eb3"
+  velocity: number // MIDI velocity, 0 to 127
   duration_ms: number
-  timestamp_ms: number // source tick time, Unix epoch ms
+  timestamp_ms: number // Unix epoch ms (when the tick was generated)
+}
+
+export interface TickAndNote {
+  type: 'tick_and_note'
+  price: number
+  note: NoteEvent
 }
