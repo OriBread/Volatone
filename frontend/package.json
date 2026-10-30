@@ -15,8 +15,11 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "lucide-react": "^1.65.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.1",
+    "tailwindcss": "^4.3.3",
     "tone": "^15.1.22"
   },
   "devDependencies": {
