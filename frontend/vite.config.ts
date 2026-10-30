@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 
@@ -6,7 +7,7 @@ import { defineConfig } from 'vitest/config'
 // Avoids CORS in dev and mirrors how production will route everything under one origin.
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   server: {
     proxy: {
       '/api': 'http://localhost:8000',

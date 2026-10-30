@@ -1,17 +1,34 @@
-:root {
-  font-family: system-ui, sans-serif;
-  color-scheme: light dark;
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Monaco, 'Courier New', monospace;
+  --color-sand-50: #faf9f5;
+  --color-sand-100: #f6f4ef;
+  --color-sand-200: #efece3;
+  --color-ink: #121212;
+  --color-playhead: #2563eb;
+  --color-trigger: #f59e0b;
 }
 
 body {
-  margin: 0;
-  padding: 2rem;
+  background-color: var(--color-sand-100);
+  background-image: radial-gradient(rgba(18, 18, 18, 0.08) 0.75px, transparent 0.75px);
+  background-size: 16px 16px;
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
 }
 
-.visualisation {
-  margin-top: 1.5rem;
-  padding: 1.5rem;
-  border: 2px dashed currentColor;
-  border-radius: 0.5rem;
-  opacity: 0.8;
+.piano-roll-bg {
+  background-color: rgba(250, 249, 245, 0.65);
+}
+.playhead-glow-band {
+  background: linear-gradient(
+    90deg,
+    rgba(37, 99, 235, 0) 0% rgba(37, 99, 235, 0.04) 40%,
+    rgba(37, 99, 235, 0.08) 50%,
+    rgba(37, 99, 235, 0.04) 60%,
+    rgba(37, 99, 235, 0) 100%
+  );
 }
