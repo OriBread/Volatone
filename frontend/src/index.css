@@ -10,23 +10,108 @@
   --color-ink: #121212;
   --color-playhead: #2563eb;
   --color-trigger: #f59e0b;
+
+  --animate-feed-in: feed-in 240ms ease-out both;
+  --animate-panel-in: panel-in 320ms cubic-bezier(0.4, 0, 0.2, 1) 160ms both;
+
+  @keyframes feed-in {
+    from {
+      opacity: 0;
+      transform: translateY(-3px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateX(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }
 
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/*
+ * Paper: four dot layers on different tile sizes so the pattern reads as irregular, one of them
+ * a fainter copy of the main layer nudged 5px/4px (like a misregistered print), and a fine
+ * grain on top. Each list below has one entry per layer, in the same order.
+ */
 body {
   background-color: var(--color-sand-100);
-  background-image: radial-gradient(rgba(18, 18, 18, 0.08) 0.75px, transparent 0.75px);
-  background-size: 16px 16px;
+  background-image:
+    radial-gradient(rgba(18, 18, 18, 0.1) 0.75px, transparent 0.75px),
+    radial-gradient(rgba(18, 18, 18, 0.045) 0.75px, transparent 0.75px),
+    radial-gradient(rgba(18, 18, 18, 0.065) 0.6px, transparent 0.6px),
+    radial-gradient(rgba(18, 18, 18, 0.05) 1px, transparent 1px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.07 0 0 0 0 0.07 0 0 0 0 0.07 0.22 0 0 0 -0.09'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:
+    16px 16px,
+    16px 16px,
+    23px 23px,
+    37px 37px,
+    220px 220px;
+  background-position:
+    0 0,
+    5px 4px,
+    7px 11px,
+    19px 5px,
+    0 0;
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Animating the columns moves both the sidebar and the roll. The curve is
+   deliberate: a front-loaded one (e.g. 0.22, 1, 0.36, 1) does ~60% of the move in the first
+   100ms and reads as a snap. Off while dragging so the panel follows the pointer without lag. */
+.app-layout {
+  grid-template-rows: minmax(0, 1fr);
+  transition: grid-template-columns 560ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-layout[data-dragging='true'] {
+  transition: none;
+}
+
+.sidebar-toggle-icon {
+  transform: rotate(0deg);
+  transition: transform 560ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-toggle-icon[data-expanded='true'] {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-layout,
+  .sidebar-toggle-icon {
+    transition: none;
+  }
 }
 
 .piano-roll-bg {
   background-color: rgba(250, 249, 245, 0.65);
 }
+
 .playhead-glow-band {
   background: linear-gradient(
     90deg,
-    rgba(37, 99, 235, 0) 0% rgba(37, 99, 235, 0.04) 40%,
+    rgba(37, 99, 235, 0) 0%,
+    rgba(37, 99, 235, 0.04) 40%,
     rgba(37, 99, 235, 0.08) 50%,
     rgba(37, 99, 235, 0.04) 60%,
     rgba(37, 99, 235, 0) 100%
