@@ -85,6 +85,11 @@ body {
 
 .app-layout[data-dragging='true'] {
   transition: none;
+  /* Nothing under the pointer is selectable mid-drag, so a long sweep cannot turn into a
+     native drag of a text selection (which cancels the pointer capture). */
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: col-resize;
 }
 
 .sidebar-toggle-icon {
@@ -103,8 +108,17 @@ body {
   }
 }
 
+/* Slightly translucent panel: the paper grain behind it shows through, with a soft sheen
+   along the top edge so the surface still reads as glass rather than a hole. */
 .piano-roll-bg {
-  background-color: rgba(250, 249, 245, 0.65);
+  background-color: rgba(250, 249, 245, 0.55);
+  background-image: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.1) 45%,
+    rgba(239, 236, 227, 0.3) 100%
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .playhead-glow-band {
