@@ -47,37 +47,20 @@ body,
 }
 
 /*
- * Paper: four dot layers on different tile sizes so the pattern reads as irregular, one of them
- * a fainter copy of the main layer nudged 5px/4px (like a misregistered print), and a fine
- * grain on top. Each list below has one entry per layer, in the same order.
+ * Paper - texture
  */
 body {
   background-color: var(--color-sand-100);
-  background-image:
-    radial-gradient(rgba(18, 18, 18, 0.1) 0.75px, transparent 0.75px),
-    radial-gradient(rgba(18, 18, 18, 0.045) 0.75px, transparent 0.75px),
-    radial-gradient(rgba(18, 18, 18, 0.065) 0.6px, transparent 0.6px),
-    radial-gradient(rgba(18, 18, 18, 0.05) 1px, transparent 1px),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.07 0 0 0 0 0.07 0 0 0 0 0.07 0.22 0 0 0 -0.09'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:
-    16px 16px,
-    16px 16px,
-    23px 23px,
-    37px 37px,
-    220px 220px;
-  background-position:
-    0 0,
-    5px 4px,
-    7px 11px,
-    19px 5px,
-    0 0;
+  background-image: radial-gradient(
+    rgba(140, 126, 96, 0.15) 1.4px,
+    transparent 1.4px
+  );
+  background-size: 24px 24px;
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Animating the columns moves both the sidebar and the roll. The curve is
-   deliberate: a front-loaded one (e.g. 0.22, 1, 0.36, 1) does ~60% of the move in the first
-   100ms and reads as a snap. Off while dragging so the panel follows the pointer without lag. */
+/* Animating the columns moves both the sidebar and the roll. */
 .app-layout {
   grid-template-rows: minmax(0, 1fr);
   transition: grid-template-columns 560ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -108,8 +91,6 @@ body {
   }
 }
 
-/* Slightly translucent panel: the paper grain behind it shows through, with a soft sheen
-   along the top edge so the surface still reads as glass rather than a hole. */
 .piano-roll-bg {
   background-color: rgba(250, 249, 245, 0.55);
   background-image: linear-gradient(

@@ -81,7 +81,7 @@ export function TradeChart({ series }: TradeChartProps) {
   return (
     <figure className="m-0 flex flex-col gap-2">
       <div
-        className="relative aspect-[5/2] w-full border border-slate-200 bg-sand-50"
+        className="relative aspect-5/2 w-full border border-slate-200 bg-sand-50"
         onMouseLeave={() => setActiveIndex(null)}
       >
         <span className={`${cornerLabel} top-1.5 left-2`}>
@@ -99,7 +99,7 @@ export function TradeChart({ series }: TradeChartProps) {
           aria-label={`Price series, ${series.length} points`}
           className="absolute inset-0 size-full overflow-visible"
         >
-          <path d={areaPath} className="fill-playhead/[0.06]" />
+          <path d={areaPath} className="fill-playhead/6" />
           <path
             d={linePath}
             fill="none"

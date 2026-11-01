@@ -157,7 +157,7 @@ export function Sidebar({
           role="region"
           aria-label={isOverview ? 'Overview' : 'Detail'}
           tabIndex={0}
-          className="min-h-0 flex-1 overflow-y-auto pt-6 pb-4 outline-none [scrollbar-width:none]
+          className="min-h-0 flex-1 overflow-y-auto pt-6 pb-4 outline-none [scrollbar-none]
             focus-visible:outline-2 focus-visible:outline-playhead [&::-webkit-scrollbar]:hidden"
         >
           {/* Remounts on mode change so the new content fades in as the panel opens. */}
