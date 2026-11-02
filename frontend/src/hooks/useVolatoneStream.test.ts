@@ -37,6 +37,20 @@ describe('useVolatoneStream', () => {
     expect(onEvent).toHaveBeenCalledTimes(1)
   })
 
+  it('stamps each event with an incrementing id and an arrival time', () => {
+    const { result } = renderHook(() => useVolatoneStream('ws://x'))
+    const socket = FakeWebSocket.instances[0]
+
+    act(() => socket.open())
+    act(() => socket.message(message))
+    act(() => socket.message(message))
+
+    const [first, second] = result.current.events
+    expect(first.id).toBe(0)
+    expect(second.id).toBe(1)
+    expect(Number.isFinite(first.arrivedAt)).toBe(true)
+  })
+
   it('ignores garbage instead of crashing', () => {
     const { result } = renderHook(() => useVolatoneStream('ws://x'))
     act(() => FakeWebSocket.instances[0].message('not json'))

@@ -25,7 +25,8 @@ export interface RollNote {
   pitch: string
   velocity: number
   durationMs: number
-  timestampMs: number
+  timestampMs: number // backend epoch ms (when the tick was generated) - for tooltips/history
+  arrivedMs: number // browser perf-clock ms (when our socket received it)
 }
 export type MetricRow =
   | {

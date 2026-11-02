@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { useRef } from 'react'
 import type { KeyboardEvent, PointerEvent, ReactNode } from 'react'
 import { SIDEBAR_MAX_VW, SIDEBAR_MIN_PX } from '../lib/layout'
@@ -145,7 +145,7 @@ export function Sidebar({
               focus-visible:outline-2 focus-visible:outline-offset-2
               focus-visible:outline-playhead"
           >
-            <ChevronRight
+            <ChevronLeft
               aria-hidden="true"
               data-expanded={!isOverview}
               className="sidebar-toggle-icon size-4"

@@ -8,7 +8,9 @@
   --color-sand-100: #f6f4ef;
   --color-sand-200: #efece3;
   --color-ink: #121212;
-  --color-playhead: #2563eb;
+  /* Blue midpoint, lifted in lightness so the instrument reads lighter overall;
+     playhead, chart, note and focus colours all derive from this one token. */
+  --color-playhead: #2e9de6;
   --color-trigger: #f59e0b;
 
   --animate-feed-in: feed-in 240ms ease-out both;
@@ -44,6 +46,16 @@ body,
   min-height: 100%;
   margin: 0;
   overflow: hidden;
+}
+
+/* No blinking text caret on click. This is a dashboard, not a text editor, but
+   the browser still draws its own caret (e.g. Firefox's click-to-focus caret
+   and caret browsing, F7) over plain text like the live feed or the Sound
+   button. `caret-color` is inherited, so one rule silences the caret char
+   everywhere, while text selection stays fully available — highlighting is
+   driven by the untouched ::selection painting, not the caret. */
+html {
+  caret-color: transparent;
 }
 
 /*
@@ -102,10 +114,10 @@ body {
 .playhead-glow-band {
   background: linear-gradient(
     90deg,
-    rgba(37, 99, 235, 0) 0%,
-    rgba(37, 99, 235, 0.04) 40%,
-    rgba(37, 99, 235, 0.08) 50%,
-    rgba(37, 99, 235, 0.04) 60%,
-    rgba(37, 99, 235, 0) 100%
+    rgba(46, 157, 230, 0) 0%,
+    rgba(46, 157, 230, 0.04) 40%,
+    rgba(46, 157, 230, 0.08) 50%,
+    rgba(46, 157, 230, 0.04) 60%,
+    rgba(46, 157, 230, 0) 100%
   );
 }

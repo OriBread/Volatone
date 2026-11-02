@@ -27,7 +27,7 @@ def test_small_move_is_proportional_not_clamped() -> None:
 
 def test_flat_market_is_quiet_and_long() -> None:
     note = generate_note_from_change(0.0, 100.0)
-    assert note["pitch"] == "F3"  # middle of the scale
+    assert note["pitch"] == "F4"  # middle of the scale
     assert note["velocity"] == 40
     assert note["duration_ms"] == 500
 

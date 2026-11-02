@@ -46,7 +46,7 @@ export function LiveFeed({ rows }: LiveFeedProps) {
             Price
           </th>
           <th scope="col" className={`${headCell} text-right`}>
-            <span aria-hidden="true">Δ </span>
+            <span aria-hidden="true">Δ</span>
             <span className="sr-only">Change per </span>
             Step
           </th>

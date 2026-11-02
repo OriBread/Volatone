@@ -4,14 +4,15 @@ import { parseTickAndNote } from '../lib/parse'
 import type { TickAndNote } from '../types/events'
 
 export type ConnectionStatus = 'connecting' | 'open' | 'reconnecting'
+export type StreamEvent = TickAndNote & { id: number; arrivedAt: number }
 
 export interface StreamState {
   status: ConnectionStatus
-  latest: TickAndNote | null
-  events: TickAndNote[] // the most recent MAX_EVENTS, oldest first
+  latest: StreamEvent | null
+  events: StreamEvent[] // the most recent MAX_EVENTS, oldest first
 }
 
-const MAX_EVENTS = 200
+const MAX_EVENTS = 50
 const BASE_DELAY_MS = 500
 const MAX_DELAY_MS = 15_000
 
@@ -30,13 +31,16 @@ export function useVolatoneStream(
     events: [],
   })
 
-  /* Always call the newest callback without re-opening the socket when it changes.
-  // "The WS onmessage handler should always call the latest version of onEvent. The WS useEffect only reruns on url change, so if onEvent changes, the WS closure would be trapped on the initial onEvent. We use a ref + effect to always call the latest version of onEvent without re-opening the socket (safeguard against future potential network stutter scenario)"
-  */
+  // Call the newest callback without re-opening the socket when it changes: the
+  // effect below depends only on `url`, so a fresh onEvent would otherwise stay
+  // trapped in the closure of the connection's first render.
   const onEventRef = useRef(onEvent)
   useEffect(() => {
     onEventRef.current = onEvent
   })
+
+  // Unique per event — used as React keys and to link a chart node to its note.
+  const nextId = useRef(0)
 
   useEffect(() => {
     let socket: WebSocket | null = null
@@ -47,28 +51,28 @@ export function useVolatoneStream(
     const connect = () => {
       socket = new WebSocket(url)
 
-      //// Assign callback functions to WebSocket listeners
-
-      // Server finishes handshake
       socket.onopen = () => {
         attempt = 0 // a successful connection resets the backoff
         setState((s) => ({ ...s, status: 'open' }))
       }
 
-      // Server sends a data frame
       socket.onmessage = (message) => {
         if (typeof message.data !== 'string') return
         const event = parseTickAndNote(message.data)
         if (event === null) return // not ours: ignore, don't crash
-        onEventRef.current?.(event) // run the latest callback
+        const stamped: StreamEvent = {
+          ...event,
+          id: nextId.current++,
+          arrivedAt: performance.now(),
+        }
+        onEventRef.current?.(stamped) // run the latest callback
         setState((s) => ({
           ...s,
-          latest: event,
-          events: [...s.events, event].slice(-MAX_EVENTS),
+          latest: stamped,
+          events: [...s.events, stamped].slice(-MAX_EVENTS),
         }))
       }
 
-      // Connection drops/closes
       socket.onclose = () => {
         if (disposed) return
         setState((s) => ({ ...s, status: 'reconnecting' }))

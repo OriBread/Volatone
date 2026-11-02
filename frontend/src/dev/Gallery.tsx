@@ -16,27 +16,25 @@ const ticker: TickerInfo = { symbol: 'BTC/USD', name: 'Bitcoin / US Dollar', pri
 
 const sources: SourceOption[] = [{ id: 'btc-usd', label: 'BTC/USD' }]
 
-// Whole-tone lanes, top to bottom, with middle C emphasised.
-const lanes = ['A#4', 'G#4', 'F#4', 'E4', 'D4', 'C4', 'A#3', 'G#3', 'F#3', 'E3', 'D3', 'C3']
-
-// Sample notes use the engine's pentatonic set (C3 Eb3 F3 G3 Bb3).
+// Sample notes use the engine's pentatonic set (C4 Eb4 F4 G4 Bb4),
+// shifted one octave up alongside the engine.
 const feedRows: FeedRow[] = [
-  { id: 'f8', time: '21:04:14', note: 'Bb3', price: 62286, deltaPct: -0.01 },
-  { id: 'f7', time: '21:04:13', note: 'G3', price: 62292, deltaPct: -0.05 },
-  { id: 'f6', time: '21:04:13', note: 'Bb3', price: 62326, deltaPct: -0.02 },
-  { id: 'f5', time: '21:04:12', note: 'F3', price: 62342, deltaPct: 0.01 },
-  { id: 'f4', time: '21:04:12', note: 'G3', price: 62333, deltaPct: -0.02 },
-  { id: 'f3', time: '21:04:11', note: 'Eb3', price: 62345, deltaPct: 0.07 },
-  { id: 'f2', time: '21:04:11', note: 'Bb3', price: 62300, deltaPct: 0.04 },
-  { id: 'f1', time: '21:04:10', note: 'C3', price: 62273, deltaPct: null },
+  { id: 'f8', time: '21:04:14', note: 'Bb4', price: 62286, deltaPct: -0.01 },
+  { id: 'f7', time: '21:04:13', note: 'G4', price: 62292, deltaPct: -0.05 },
+  { id: 'f6', time: '21:04:13', note: 'Bb4', price: 62326, deltaPct: -0.02 },
+  { id: 'f5', time: '21:04:12', note: 'F4', price: 62342, deltaPct: 0.01 },
+  { id: 'f4', time: '21:04:12', note: 'G4', price: 62333, deltaPct: -0.02 },
+  { id: 'f3', time: '21:04:11', note: 'Eb4', price: 62345, deltaPct: 0.07 },
+  { id: 'f2', time: '21:04:11', note: 'Bb4', price: 62300, deltaPct: 0.04 },
+  { id: 'f1', time: '21:04:10', note: 'C4', price: 62273, deltaPct: null },
 ]
 
 const series: SeriesPoint[] = [
-  { id: 's1', price: 62262, deltaPct: null, note: 'C3' },
-  { id: 's2', price: 62273, deltaPct: 0.02, note: 'Eb3' },
-  { id: 's3', price: 62300, deltaPct: 0.04, note: 'F3' },
-  { id: 's4', price: 62292, deltaPct: -0.01, note: 'Eb3' },
-  { id: 's5', price: 62318, deltaPct: 0.04, note: 'G3' },
+  { id: 's1', price: 62262, deltaPct: null, note: 'C4' },
+  { id: 's2', price: 62273, deltaPct: 0.02, note: 'Eb4' },
+  { id: 's3', price: 62300, deltaPct: 0.04, note: 'F4' },
+  { id: 's4', price: 62292, deltaPct: -0.01, note: 'Eb4' },
+  { id: 's5', price: 62318, deltaPct: 0.04, note: 'G4' },
   { id: 's6', price: 62306, deltaPct: -0.02, note: 'F3' },
   { id: 's7', price: 62333, deltaPct: 0.04, note: 'G3' },
   { id: 's8', price: 62345, deltaPct: 0.07, note: 'Bb3' },
@@ -75,7 +73,7 @@ export function Gallery() {
           onToggleAudio={() => setAudioOn((on) => !on)}
         />
       }
-      roll={<PianoRollFrame lanes={lanes} emphasisLane="C4" />}
+      roll={<PianoRollFrame />}
       sidebarWidthPx={widthPx}
       sidebarDragging={dragging}
       sidebar={
