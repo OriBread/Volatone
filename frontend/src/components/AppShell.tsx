@@ -21,7 +21,7 @@ export function AppShell({
   sidebarDragging = false,
   sidebarLabel = 'Session panel',
 }: AppShellProps) {
-  // Two tracks: the roll takes what's left, the sidebar gets its (clamped) width. The
+  // Two tracks: the roll takes what's left, the sidebar gets its (clamped) width.
   // transition on grid-template-columns (see .app-layout in index.css) animates both at once.
   const layoutStyle: CSSProperties = {
     gridTemplateColumns: `minmax(0, 1fr) clamp(${SIDEBAR_MIN_PX}px, ${sidebarWidthPx}px, ${SIDEBAR_MAX_VW}vw)`,
