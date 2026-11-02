@@ -1,6 +1,7 @@
-# Pentatonic scale mapping (C Minor Pentatonic: C, Eb, F, G, Bb)
-# We map a normalised price change (-1.0 to 1.0) to these 5 notes.
-PENTATONIC_NOTES = ["C3", "Eb3", "F3", "G3", "Bb3"]
+# Pentatonic scale mapping (C Minor Pentatonic: C, Eb, F, G, Bb), one octave up
+# for a brighter voice. Every pitch here must have a lane in the frontend roll
+# (frontend/src/lib/layout.ts ROLL_OCTAVE_BASE).
+PENTATONIC_NOTES = ["C4", "Eb4", "F4", "G4", "Bb4"]
 
 FULL_SCALE = 0.002  # a 0.2% move between ticks = "maximum" (ARBITRARY)
 
@@ -23,14 +24,13 @@ def generate_note_from_change(price_change: float, price: float) -> dict[str, st
     idx = round((price_change + 1.0) / 2.0 * (len(PENTATONIC_NOTES) - 1))
     pitch = PENTATONIC_NOTES[idx]
 
-    # 2. Velocity: (volume): Based on magnitude of change (ARBITRARILY absolute value)
-    # 0% change = 40 (quiet), >2% change = 127 (loud)
-    # based on MIDI 1.0's 128 velocity levels
+    # 2. Velocity (loudness): from the magnitude of change (arbitrarily absolute value).
+    # 0% change = 40 (quiet), FULL_SCALE change = 127 (loud); MIDI 1.0 has 128 levels.
     magnitude = abs(price_change)
     velocity = int(40 + magnitude * 87)
     velocity = max(40, min(127, velocity))  # [40, 127]
 
-    # 3. Duration: ARBITRARILY Inversely related to volatility.
+    # 3. Duration (arbitrary choice): inversely related to volatility.
     # High volatility = short, staccato notes.
     duration_ms = int(500 - magnitude * 400)  # [100, 500]
 

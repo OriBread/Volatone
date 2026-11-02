@@ -53,7 +53,7 @@ def test_recent_history_returns_ticks_with_derived_notes() -> None:
         {
             "timestamp": first_timestamp.isoformat(),
             "price": 65000.0,
-            "pitch": "Bb3",
+            "pitch": "Bb4",
             "velocity": 127,
         },
     ]

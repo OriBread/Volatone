@@ -4,6 +4,9 @@ import type { SeriesPoint } from '../types/view'
 
 export interface TradeChartProps {
   series: SeriesPoint[]
+  /** Currently-highlighted point id (shared with the roll via App). */
+  selectedId?: string | null
+  onSelect?: (id: string) => void
 }
 
 const VIEW_W = 500
@@ -11,9 +14,9 @@ const VIEW_H = 200
 const PAD_X = 18
 const PAD_TOP = 30
 const PAD_BOTTOM = 30
-const NODE_SIZE = 7
-const HIT_SIZE = 22
-const RING_SIZE = 14
+const NODE_SIZE = 4
+const HIT_SIZE = 22 // kept generous for an easy click/keyboard target
+const RING_SIZE = 10
 const DOMAIN_PADDING = 0.08
 
 const priceFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
@@ -48,7 +51,7 @@ function tooltipStyle(xPct: number, yPct: number): CSSProperties {
   }
 }
 
-export function TradeChart({ series }: TradeChartProps) {
+export function TradeChart({ series, selectedId, onSelect }: TradeChartProps) {
   const tooltipId = useId()
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
@@ -124,6 +127,8 @@ export function TradeChart({ series }: TradeChartProps) {
 
           {points.map(({ point, x, y }, index) => {
             const isActive = index === activeIndex
+            const isSelected = point.id === selectedId
+
             return (
               <g
                 key={point.id}
@@ -133,10 +138,11 @@ export function TradeChart({ series }: TradeChartProps) {
                   point.deltaPct,
                 )}, ${point.note}`}
                 aria-describedby={isActive ? tooltipId : undefined}
+                onClick={() => onSelect?.(point.id)}
                 onMouseEnter={() => setActiveIndex(index)}
                 onFocus={() => setActiveIndex(index)}
                 onBlur={() => setActiveIndex((current) => (current === index ? null : current))}
-                className="group cursor-default outline-none"
+                className="group cursor-pointer outline-none"
               >
                 <rect
                   x={x - HIT_SIZE / 2}
@@ -152,15 +158,19 @@ export function TradeChart({ series }: TradeChartProps) {
                   height={RING_SIZE}
                   fill="none"
                   strokeWidth={1.5}
+                  rx={3}
                   vectorEffect="non-scaling-stroke"
-                  className="stroke-playhead opacity-0 group-focus-visible:opacity-100"
+                  className={`stroke-playhead ${
+                    isSelected ? 'opacity-100' : 'opacity-0 group-focus-visible:opacity-100'
+                  }`}
                 />
                 <rect
                   x={x - NODE_SIZE / 2}
                   y={y - NODE_SIZE / 2}
                   width={NODE_SIZE}
                   height={NODE_SIZE}
-                  className={isActive ? 'fill-playhead' : 'fill-ink'}
+                  rx={1.5}
+                  className={isActive || isSelected ? 'fill-playhead' : 'fill-ink'}
                 />
               </g>
             )

@@ -13,7 +13,7 @@ from .ws_manager import manager
 router = APIRouter(tags=["websocket"])
 
 
-# --- Health ---
+# --- Ping ---
 
 
 @router.websocket("/hello")
@@ -52,7 +52,7 @@ async def market_data_generator() -> None:
         price_change = calculate_price_change(current_price, _mock_previous_price - move)
         note_data = generate_note_from_change(price_change, current_price)
 
-        # 3. Construct validated shcema
+        # 3. Construct validated schema
         event = NoteEvent(
             pitch=note_data["pitch"],
             velocity=note_data["velocity"],

@@ -1,4 +1,4 @@
-import { ChevronDown, Volume2, VolumeX } from 'lucide-react'
+import { ChevronDown, Loader2, Volume2, VolumeX } from 'lucide-react'
 import type { SourceOption, TickerInfo } from '../types/view'
 
 export interface HeaderProps {
@@ -7,6 +7,8 @@ export interface HeaderProps {
   sourceId: string
   onSourceChange: (id: string) => void
   audioOn: boolean
+  /** True between the click and the AudioContext actually resuming. */
+  audioPending?: boolean
   onToggleAudio: () => void
 }
 
@@ -25,10 +27,12 @@ export function Header({
   sourceId,
   onSourceChange,
   audioOn,
+  audioPending = false,
   onToggleAudio,
 }: HeaderProps) {
   const priceText = ticker.price === null ? '—' : `$${priceFormat.format(ticker.price)}`
-  const SoundIcon = audioOn ? Volume2 : VolumeX
+  const SoundIcon = audioPending ? Loader2 : audioOn ? Volume2 : VolumeX
+  const SoundIconClasses = audioPending ? 'size-4 animate-spin' : 'size-4'
 
   return (
     <div className="flex w-full items-start justify-between gap-6">
@@ -60,12 +64,14 @@ export function Header({
         <button
           type="button"
           aria-pressed={audioOn}
+          aria-busy={audioPending || undefined}
+          disabled={audioPending}
           onClick={onToggleAudio}
           className={`flex items-center gap-2 px-4 font-medium transition-colors ${focusRing} ${
-            audioOn ? 'bg-blue-50 text-playhead' : 'text-slate-700 hover:bg-sand-50'
+            audioPending || audioOn ? 'bg-blue-50 text-playhead' : 'text-slate-700 hover:bg-sand-50'
           }`}
         >
-          <SoundIcon aria-hidden="true" className="size-4" strokeWidth={2} />
+          <SoundIcon aria-hidden="true" className={SoundIconClasses} strokeWidth={2} />
           Sound
         </button>
 
