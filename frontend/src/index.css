@@ -51,10 +51,7 @@ body,
  */
 body {
   background-color: var(--color-sand-100);
-  background-image: radial-gradient(
-    rgba(140, 126, 96, 0.15) 1.4px,
-    transparent 1.4px
-  );
+  background-image: radial-gradient(rgba(140, 126, 96, 0.15) 1.4px, transparent 1.4px);
   background-size: 24px 24px;
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
