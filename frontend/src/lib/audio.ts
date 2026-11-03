@@ -4,7 +4,10 @@ import * as Tone from 'tone'
 export interface AudioEngine {
   /** Unlock the AudioContext and build the instrument. Must happen in a user gesture. */
   start(): Promise<void>
-  /** Play one note right now (schedule-0 convenience; still latency-corrected). */
+  /** Play one note right now (schedule-0 convenience; still latency-corrected).
+   *  Deliberately kept even though the App's live stream path only calls
+   *  schedule(): it is the latency-correction probe at the zero-delay clamp
+   *  (audio.test.ts uses it to pin that path). */
   play(note: NoteEvent): void
   /**
    * Schedule a note to sound delayMs from *this instant*, on the audio clock.
@@ -24,9 +27,30 @@ export interface AudioEngine {
 const VELOCITY_FLOOR = 0.25
 
 /** Tone's lookAhead (0.1 default, adjust for delay): how far ahead Tone.now() sits from the real clock. */
-const LOOKAHEAD_S = 0.15
+const LOOKAHEAD_S = 0.1
+/** Audio by-ear sync trimming (seconds). */
+const AUDIO_SYNC_TRIM_S = 0.05
 
 const seconds = (ms: number) => ms / 1000
+
+/** Output latency of the raw context in seconds (baseLatency as fallback, 0 if unknown). */
+function outputLatencyS(): number {
+  const rawCtx = Tone.getContext().rawContext
+  return 'outputLatency' in rawCtx && typeof rawCtx.outputLatency === 'number'
+    ? rawCtx.outputLatency
+    : 'baseLatency' in rawCtx && typeof rawCtx.baseLatency === 'number'
+      ? rawCtx.baseLatency
+      : 0
+}
+
+/* Transits shorter than this clamp to "now" on the audio clock (see
+   scheduleInternal's Math.max), which would stack several notes into one
+   chord. Exposed for the backfill path, which must therefore stay silent for
+   anything closer than this — derived from the SAME constants and latency the
+   clamping in scheduleInternal uses, so the two can never drift apart. */
+export function clampThresholdMs(): number {
+  return (LOOKAHEAD_S + AUDIO_SYNC_TRIM_S + outputLatencyS()) * 1000
+}
 
 export function createAudioEngine(): AudioEngine {
   let voice: Tone.PolySynth | null = null
@@ -41,15 +65,8 @@ export function createAudioEngine(): AudioEngine {
     // includes the lookAhead, so the scheduled time is pulled earlier by the
     // lookAhead and the hardware latency; the note then *emerges* from the
     // speakers at exactly the intended moment instead of after both delays.
-    const rawCtx = Tone.getContext().rawContext
-    const outLatency =
-      'outputLatency' in rawCtx && typeof rawCtx.outputLatency === 'number'
-        ? rawCtx.outputLatency
-        : 'baseLatency' in rawCtx && typeof rawCtx.baseLatency === 'number'
-          ? rawCtx.baseLatency
-          : 0
     const target = Tone.now() + seconds(delayMs)
-    const when = Math.max(target - LOOKAHEAD_S - outLatency, Tone.now())
+    const when = Math.max(target - LOOKAHEAD_S - AUDIO_SYNC_TRIM_S - outputLatencyS(), Tone.now())
 
     voice.triggerAttackRelease(note.pitch, seconds(note.duration_ms), when, velocity)
   }
