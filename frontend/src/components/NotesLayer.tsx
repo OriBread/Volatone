@@ -51,16 +51,37 @@ export function NotesLayer({ notes, highlightedId }: NotesLayerProps) {
   const layerRef = useRef<HTMLDivElement>(null)
   const [widthPx, setWidthPx] = useState(0)
 
+  /* Mirror of the visibility culling in the render pass below. */
+  const isNoteVisible = (note: RollNote, nowMs: number, rollWidthPx: number) => {
+    const playheadPx = rollWidthPx * (PLAYHEAD_X_PERCENT / 100)
+    const spanPx = rollWidthPx - playheadPx
+    const leftPx = playheadPx + ((note.arrivedMs + TRAVEL_MS - nowMs) / TRAVEL_MS) * spanPx
+    const noteWidthPx = (note.durationMs / TRAVEL_MS) * spanPx
+    return leftPx + noteWidthPx > 0 && leftPx < rollWidthPx
+  }
+
+  /* The animation clock runs only while something is on the roll: a silent or
+     disconnected stream costs no frames (F1). The loop ticks 60fps while any note
+     is visible, then parks itself; whenever `notes` or `widthPx` change (new note
+     event arrived while parked, or a sidebar drag changed the visible span) this
+     effect re-runs and a fresh rAF tick wakes it — and refreshes the clock with
+     a live `now` in that same tick, so no stale-frame nudge is needed. */
   useEffect(() => {
-    if (notes.length === 0) return
+    if (widthPx === 0) return // first paint before ResizeObserver fires: nothing visible
     let raf: number
     const tick = () => {
-      setNow(performance.now())
-      raf = requestAnimationFrame(tick)
+      const t = performance.now()
+      if (notes.length > 0 && notes.some((note) => isNoteVisible(note, t, widthPx))) {
+        setNow(t) // re-render only when something paints: 60fps while notes are visible
+        raf = requestAnimationFrame(tick)
+      }
+      // else: loop stops; re-running this effect restarts it from the parked state
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [notes.length])
+    // Re-evaluate when the set of notes or the canvas width changes (a resize can
+    // bring an off-screen note back into view, so sleeping must cover both).
+  }, [notes, widthPx])
 
   /* The layer's width in pixels is measured (and re-measured on resize, e.g. sidebar
      drags) so note positions can be expressed as device-pixel transforms. */
@@ -93,7 +114,9 @@ export function NotesLayer({ notes, highlightedId }: NotesLayerProps) {
                after crossing the playhead, KEEPS GOING — sliding past and fading under
                the shade until it exits the roll. Onset meets the playhead exactly
                TRAVEL_MS after arrival, the same delay the audio fires on, so sight
-               and sound line up. */
+               and sound line up.
+               (The culling + these position formulas are mirrored in isNoteVisible
+               above — keep the two in sync if you change either.) */
             const leftPx = playheadPx + ((note.arrivedMs + TRAVEL_MS - now) / TRAVEL_MS) * spanPx
             const noteWidthPx = (note.durationMs / TRAVEL_MS) * spanPx
 
@@ -136,7 +159,7 @@ export function NotesLayer({ notes, highlightedId }: NotesLayerProps) {
             return (
               <div
                 key={note.id}
-                className={`pointer-events-none rounded-[4px] ${
+                className={`pointer-events-none rounded-sm ${
                   isHighlighted ? 'ring-2 ring-playhead' : ''
                 }`}
                 style={{
