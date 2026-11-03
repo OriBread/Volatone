@@ -12,8 +12,7 @@ export const SIDEBAR_DETAIL_THRESHOLD_PX = 400
 /** Playhead position as a percentage of the roll's width. */
 export const PLAYHEAD_X_PERCENT = 25
 
-/** Time a note takes to travel from the right edge of the roll to the playhead.
-    4000ms = slower traversal; the previous speed was 2667ms (at a 1/3 playhead). */
+/** Time a note takes to travel from the right edge of the roll to the playhead. */
 export const TRAVEL_MS = 4000
 
 /* -- Roll pitch lanes ------------------------------------------------------------- */
@@ -28,11 +27,13 @@ const NATURAL_CLASSES = new Set(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
 /** Engine spellings are flattened (Eb3, Bb3): map them onto sharp lanes. */
 const FLAT_TO_SHARP: Record<string, string> = { Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#' }
 
-/** 'Eb3' -> 'D#3'. One canonical name per lane, whatever the engine sends. */
+/** 'Eb3' -> 'D#3'. One canonical name per lane, whatever the engine sends.
+    Octave splitting is regex-based (name vs digits), so two-digit (C10) and
+    negative (C-1) octaves work too — the old last-char slice corrupted them. */
 export function normalizePitch(pitch: string): string {
-  const name = pitch.slice(0, -1)
-  const octave = pitch.slice(-1)
-  return `${FLAT_TO_SHARP[name] ?? name}${octave}`
+  const match = /^([A-G][#b]?)(-?\d+)$/.exec(pitch)
+  if (match === null) return pitch // not a recognizable pitch: pass through; the lane lookup will miss
+  return `${FLAT_TO_SHARP[match[1]] ?? match[1]}${match[2]}`
 }
 
 export interface LaneSpec {

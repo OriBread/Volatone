@@ -12,7 +12,7 @@ export interface StreamState {
   events: StreamEvent[] // the most recent MAX_EVENTS, oldest first
 }
 
-const MAX_EVENTS = 50
+const MAX_EVENTS = 25
 const BASE_DELAY_MS = 500
 const MAX_DELAY_MS = 15_000
 
@@ -23,7 +23,7 @@ const MAX_DELAY_MS = 15_000
  */
 export function useVolatoneStream(
   url: string,
-  onEvent?: (event: TickAndNote) => void,
+  onEvent?: (event: StreamEvent) => void,
 ): StreamState {
   const [state, setState] = useState<StreamState>({
     status: 'connecting',

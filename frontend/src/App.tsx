@@ -12,7 +12,7 @@ import { SidebarSection } from './components/SidebarSection'
 import { TradeChart } from './components/TradeChart'
 import { useSidebarLayout } from './hooks/useSidebarLayout'
 import { useVolatoneStream } from './hooks/useVolatoneStream'
-import { createAudioEngine } from './lib/audio'
+import { clampThresholdMs, createAudioEngine } from './lib/audio'
 import { streamUrl } from './lib/config'
 import { buildMetrics } from './lib/metrics'
 import { TRAVEL_MS } from './lib/layout'
@@ -23,9 +23,8 @@ const PLACEHOLDER_TICKER = { symbol: '—', name: '', price: null }
 const NO_SOURCE = { id: 'live', label: 'Live' }
 const NOOP = () => {}
 
-/* Crossing closer than this stays silent on toggle: scheduling it clamps the
-   audio clock to "now", stacking notes into one chord. */
-const CRITICAL_TRANSIT_MS = 100
+/* Replaced by the engine's own clamp threshold: crossing closer than this stays
+   silent on toggle (see lib/audio.clampThresholdMs and its derivation). */
 
 export default function App() {
   // Created once. Safe in render: nothing touches audio until start() is called.
@@ -76,7 +75,7 @@ export default function App() {
       const now = performance.now()
       for (const event of events) {
         const remainingMs = TRAVEL_MS - (now - event.arrivedAt)
-        if (remainingMs > CRITICAL_TRANSIT_MS) {
+        if (remainingMs > clampThresholdMs()) {
           audio.schedule(event.note, remainingMs)
         }
       }

@@ -36,11 +36,11 @@ describe('createAudioEngine', () => {
     expect(fakes.trigger).not.toHaveBeenCalled()
   })
 
-  it('plays the string voice with ms→seconds and floored velocity once started', async () => {
+  it('plays immediately once started, with ms→seconds and floored velocity', async () => {
     const audio = createAudioEngine()
     await audio.start()
     audio.play(note)
-    // Exactly one voice, no effects. Velocity passes through the 0.25..1 floor
+    // PolySynth (MonoSynth voices), velocity passes through the 0.25..1 floor
     // first: 0.25 + 0.75 * (100/127) ≈ 0.841. Play's delay is 0: the scheduled
     // time would fall before now(), so the clamp pins it to Tone.now() = 10.
     expect(fakes.trigger).toHaveBeenCalledWith('Eb3', 0.25, 10, 0.25 + 0.75 * (100 / 127))
@@ -51,7 +51,7 @@ describe('createAudioEngine', () => {
     const audio = createAudioEngine()
     await audio.start()
     audio.schedule(note, 2000)
-    // now(10) + 2 s - LOOKAHEAD_S(0.15) - outputLatency(0.1): the note must be
+    // now(10) + 2 s - LOOKAHEAD_S(0.1) - AUDIO_SYNC_TRIM_MS(0.05) - outputLatency(0.1): the note must be
     // queued on the audio thread to emerge 2 s from the scheduling instant,
     // not 2.25 s (the classic Tone.now() lateness).
     expect(fakes.trigger).toHaveBeenCalledWith('Eb3', 0.25, 11.75, 0.25 + 0.75 * (100 / 127))

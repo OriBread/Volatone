@@ -1,0 +1,4 @@
+{
+  "notes": ["C4", "Eb4", "F4", "G4", "Bb4"],
+  "description": "Canonical engine scale. backend/tests/test_engine.py asserts engine/core.py PENTATONIC_NOTES matches this list; frontend/src/lib/layout.test.ts asserts every pitch here has a lane in the roll. Changing this file was previously silent: an unknown pitch fell off the roll (F5)."
+}
