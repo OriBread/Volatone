@@ -1,6 +1,9 @@
 # Pentatonic scale mapping (C Minor Pentatonic: C, Eb, F, G, Bb), one octave up
-# for a brighter voice. Every pitch here must have a lane in the frontend roll
-# (frontend/src/lib/layout.ts ROLL_OCTAVE_BASE).
+# for a brighter voice. MUST stay identical to the shared fixture's "notes"
+# (frontend/src/fixtures/engine-scale.json): backend/tests/test_engine.py asserts
+# the match, and frontend/src/lib/layout.test.ts asserts each fixture pitch has a
+# roll lane. Edit the fixture first, then this list — or both tests fail loudly
+# instead of frontend notes silently disappearing.
 PENTATONIC_NOTES = ["C4", "Eb4", "F4", "G4", "Bb4"]
 
 FULL_SCALE = 0.002  # a 0.2% move between ticks = "maximum" (ARBITRARY)

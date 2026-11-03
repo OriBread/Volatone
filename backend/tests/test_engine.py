@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import pytest
 
 from volatone.engine.core import (
@@ -5,6 +8,21 @@ from volatone.engine.core import (
     calculate_price_change,
     generate_note_from_change,
 )
+
+# Single source of truth for the engine scale, shared with the frontend roll:
+# frontend vitest (frontend/src/lib/layout.test.ts) asserts every pitch here has
+# a lane, and this test asserts the engine emits exactly the fixture's list.
+SCALE_FIXTURE = json.loads(
+    (
+        Path(__file__).resolve().parents[2] / "frontend" / "src" / "fixtures" / "engine-scale.json"
+    ).read_text()
+)
+
+
+def test_engine_scale_matches_shared_fixture() -> None:
+    # Contract test: change the scale only via the fixture file, or both sides
+    # fail together instead of notes silently vanishing from the roll (F5).
+    assert SCALE_FIXTURE["notes"] == PENTATONIC_NOTES
 
 
 def test_no_price_move_is_zero_change() -> None:
