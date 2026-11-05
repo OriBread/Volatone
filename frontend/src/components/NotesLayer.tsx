@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { LANE_BY_PITCH, PLAYHEAD_X_PERCENT, TRAVEL_MS, normalizePitch } from '../lib/layout'
+import { playedPulse } from '../lib/pulse'
 import type { RollNote } from '../types/view'
 
 export interface NotesLayerProps {
@@ -20,8 +21,8 @@ const NATURAL_FILL_ALPHA = 0.32
 const ACCIDENTAL_FILL_ALPHA = 0.8
 const NATURAL_BORDER = '#1b74c9'
 const ACCIDENTAL_BORDER = '#0b5cad'
-const NOTE_RADIUS = 4 // rect with a slight curve, not a pill
-/** How faint a fully played note gets before it leaves the roll (never 0). */
+const NOTE_RADIUS = 4
+/** How faint a fully played note gets before it leaves the roll */
 const PLAYED_MIN_OPACITY = 0.12
 /** Opacity immediately after a note crosses the playhead. */
 const PRESSED_OPACITY = 0.48
@@ -29,14 +30,14 @@ const PRESSED_OPACITY = 0.48
 /* Played-note pulse: on top of the fade, a just-played note swells back OUT —
    slightly larger, with a deeper fill and a thicker border — at the exact
    crossing (the moment sound happens), then settles into the fade as it
-   slides on. Driven purely by elapsed-since-crossing, so it paints in the
-   same rAF frame as the fade and motion, with no timer of its own. */
+   slides on.*/
 const PLAYED_SCALE = 0.08 // growth past natural size at the crossing
 const PLAYED_FILL_BOOST_NATURAL = 0.28 // fill alpha added at the crossing
 const PLAYED_FILL_BOOST_ACCIDENTAL = 0.15
 const PLAYED_BORDER_EXTRA_PX = 1 // border thickness added at the crossing
-/** How long the pulse takes to decay into the plain played fade. */
-const PLAYED_PULSE_MS = 350
+/* The pulse's length is per-note (see lib/pulse.ts): it holds while the synth
+   sustains (durationMs, what audio.ts sounds via triggerAttackRelease) and
+   settles over PLAYED_SETTLE_MS after — so the pulse lasts as long as the sound. */
 
 /** Fraction of the travel span over which a note eases in after spawning at
     the right edge (a material fade of the note itself, not a fog overlay). */
@@ -61,7 +62,7 @@ export function NotesLayer({ notes, highlightedId }: NotesLayerProps) {
   }
 
   /* The animation clock runs only while something is on the roll: a silent or
-     disconnected stream costs no frames (F1). The loop ticks 60fps while any note
+     disconnected stream costs no frames. The loop ticks 60fps while any note
      is visible, then parks itself; whenever `notes` or `widthPx` change (new note
      event arrived while parked, or a sidebar drag changed the visible span) this
      effect re-runs and a fresh rAF tick wakes it — and refreshes the clock with
@@ -95,9 +96,7 @@ export function NotesLayer({ notes, highlightedId }: NotesLayerProps) {
     return () => observer.disconnect()
   }, [])
 
-  /* Horizontal motion is a translate3d transform only (lane geometry is static); animating
-     `left` would trigger layout + paint every frame — the jitter seen on smaller/lower-DPI
-     screens, where each layout snap is a whole pixel. */
+  /* Horizontal motion is a translate3d transform only (lane geometry is static) */
   const playheadPx = widthPx * (PLAYHEAD_X_PERCENT / 100)
   const spanPx = widthPx - playheadPx
 
@@ -116,7 +115,7 @@ export function NotesLayer({ notes, highlightedId }: NotesLayerProps) {
                TRAVEL_MS after arrival, the same delay the audio fires on, so sight
                and sound line up.
                (The culling + these position formulas are mirrored in isNoteVisible
-               above — keep the two in sync if you change either.) */
+               above */
             const leftPx = playheadPx + ((note.arrivedMs + TRAVEL_MS - now) / TRAVEL_MS) * spanPx
             const noteWidthPx = (note.durationMs / TRAVEL_MS) * spanPx
 
@@ -140,13 +139,10 @@ export function NotesLayer({ notes, highlightedId }: NotesLayerProps) {
                   (PRESSED_OPACITY - PLAYED_MIN_OPACITY) * Math.pow(playedProgress, 0.7)
 
             /* The pulse: 0 before the crossing (the note is still travelling),
-               1 exactly at it, easing back to 0 over PLAYED_PULSE_MS. The ^2
-               keeps the peak crisp at the crossing itself. */
+               1 exactly at it, held while the sound plays, then settling back
+               to 0 — see lib/pulse.ts. No timer of its own, same rAF frame. */
             const elapsedSinceCrossing = now - (note.arrivedMs + TRAVEL_MS)
-            const pulse =
-              elapsedSinceCrossing < 0
-                ? 0
-                : Math.pow(1 - Math.min(elapsedSinceCrossing / PLAYED_PULSE_MS, 1), 2)
+            const pulse = playedPulse(elapsedSinceCrossing, note.durationMs)
             const scale = 1 + PLAYED_SCALE * pulse
             const fillAlpha = lane.accidental
               ? ACCIDENTAL_FILL_ALPHA + PLAYED_FILL_BOOST_ACCIDENTAL * pulse

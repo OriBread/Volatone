@@ -23,9 +23,6 @@ const PLACEHOLDER_TICKER = { symbol: '—', name: '', price: null }
 const NO_SOURCE = { id: 'live', label: 'Live' }
 const NOOP = () => {}
 
-/* Replaced by the engine's own clamp threshold: crossing closer than this stays
-   silent on toggle (see lib/audio.clampThresholdMs and its derivation). */
-
 export default function App() {
   // Created once. Safe in render: nothing touches audio until start() is called.
   const [audio] = useState(createAudioEngine)
@@ -137,7 +134,12 @@ export default function App() {
           )}
         </Sidebar>
       }
-      footer={<Footer linkedinUrl="https://www.linkedin.com/" githubUrl="https://github.com/" />}
+      footer={
+        <Footer
+          linkedinUrl="https://www.linkedin.com/in/jomielle-de-sagun/"
+          githubUrl="https://github.com/Oribread/"
+        />
+      }
     />
   )
 }

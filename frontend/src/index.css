@@ -48,12 +48,7 @@ body,
   overflow: hidden;
 }
 
-/* No blinking text caret on click. This is a dashboard, not a text editor, but
-   the browser still draws its own caret (e.g. Firefox's click-to-focus caret
-   and caret browsing, F7) over plain text like the live feed or the Sound
-   button. `caret-color` is inherited, so one rule silences the caret char
-   everywhere, while text selection stays fully available — highlighting is
-   driven by the untouched ::selection painting, not the caret. */
+/* No blinking text caret on click. */
 html {
   caret-color: transparent;
 }

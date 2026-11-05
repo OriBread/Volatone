@@ -21,7 +21,7 @@ SCALE_FIXTURE = json.loads(
 
 def test_engine_scale_matches_shared_fixture() -> None:
     # Contract test: change the scale only via the fixture file, or both sides
-    # fail together instead of notes silently vanishing from the roll (F5).
+    # fail together instead of notes silently vanishing from the roll.
     assert SCALE_FIXTURE["notes"] == PENTATONIC_NOTES
 
 
