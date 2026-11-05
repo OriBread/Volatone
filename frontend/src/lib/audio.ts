@@ -33,7 +33,7 @@ const AUDIO_SYNC_TRIM_S = 0.05
 
 const seconds = (ms: number) => ms / 1000
 
-/** Output latency of the raw context in seconds (baseLatency as fallback, 0 if unknown). */
+/** Output latency of the raw context in seconds */
 function outputLatencyS(): number {
   const rawCtx = Tone.getContext().rawContext
   return 'outputLatency' in rawCtx && typeof rawCtx.outputLatency === 'number'
@@ -77,7 +77,7 @@ export function createAudioEngine(): AudioEngine {
       if (voice) return
 
       voice = new Tone.PolySynth(Tone.MonoSynth, {
-        oscillator: { type: 'triangle' }, // single clean oscillator; harmonics keep C3-Bb3 audible on small speakers
+        oscillator: { type: 'triangle' }, // single clean oscillator;
         filter: {
           type: 'lowpass',
           rolloff: -12, // gentle slope: 12 dB/octave

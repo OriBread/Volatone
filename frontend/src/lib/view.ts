@@ -3,7 +3,7 @@ import type { FeedRow, RollNote, SeriesPoint } from '../types/view'
 
 /**
  * This is the only place where backend event shape meets UI shape.
- * Pure functions: no sockets, no React, no clock. Testable without rendering.
+ * Pure functions: Testable without rendering.
  */
 
 function timeOfDay(epochMs: number): string {

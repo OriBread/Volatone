@@ -1,7 +1,7 @@
 /**
  * Pulse shape for a just-played note in the piano roll.
  *
- * Pure function of time: no React, no clock of its own — NotesLayer feeds it
+ * Pure function of time: NotesLayer feeds it
  * elapsed-since-crossing each rAF frame. The hold length is the note's
  * `duration_ms` — the SAME quantity lib/audio.ts passes to
  * `triggerAttackRelease`, so the visual pulse lasts exactly as long as the
