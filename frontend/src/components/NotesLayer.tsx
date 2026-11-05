@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { LANE_BY_PITCH, PLAYHEAD_X_PERCENT, TRAVEL_MS, normalizePitch } from '../lib/layout'
+import { playedPulse } from '../lib/pulse'
 import type { RollNote } from '../types/view'
 
 export interface NotesLayerProps {
@@ -35,8 +36,9 @@ const PLAYED_SCALE = 0.08 // growth past natural size at the crossing
 const PLAYED_FILL_BOOST_NATURAL = 0.28 // fill alpha added at the crossing
 const PLAYED_FILL_BOOST_ACCIDENTAL = 0.15
 const PLAYED_BORDER_EXTRA_PX = 1 // border thickness added at the crossing
-/** How long the pulse takes to decay into the plain played fade. */
-const PLAYED_PULSE_MS = 350
+/* The pulse's length is per-note (see lib/pulse.ts): it holds while the synth
+   sustains (durationMs, what audio.ts sounds via triggerAttackRelease) and
+   settles over PLAYED_SETTLE_MS after — so the pulse lasts as long as the sound. */
 
 /** Fraction of the travel span over which a note eases in after spawning at
     the right edge (a material fade of the note itself, not a fog overlay). */
@@ -140,13 +142,10 @@ export function NotesLayer({ notes, highlightedId }: NotesLayerProps) {
                   (PRESSED_OPACITY - PLAYED_MIN_OPACITY) * Math.pow(playedProgress, 0.7)
 
             /* The pulse: 0 before the crossing (the note is still travelling),
-               1 exactly at it, easing back to 0 over PLAYED_PULSE_MS. The ^2
-               keeps the peak crisp at the crossing itself. */
+               1 exactly at it, held while the sound plays, then settling back
+               to 0 — see lib/pulse.ts. No timer of its own, same rAF frame. */
             const elapsedSinceCrossing = now - (note.arrivedMs + TRAVEL_MS)
-            const pulse =
-              elapsedSinceCrossing < 0
-                ? 0
-                : Math.pow(1 - Math.min(elapsedSinceCrossing / PLAYED_PULSE_MS, 1), 2)
+            const pulse = playedPulse(elapsedSinceCrossing, note.durationMs)
             const scale = 1 + PLAYED_SCALE * pulse
             const fillAlpha = lane.accidental
               ? ACCIDENTAL_FILL_ALPHA + PLAYED_FILL_BOOST_ACCIDENTAL * pulse
